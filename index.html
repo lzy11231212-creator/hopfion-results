@@ -1,19 +1,19 @@
 <!doctype html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f3f5f9">
-  <title>Hopfion · A1,1 本征模</title>
+  <title>Hopfion eigenmodes | Supplementary visualizations</title>
   <style>
-    :root { font: 15px/1.5 Inter, 'Microsoft YaHei UI', 'PingFang SC', system-ui, sans-serif; color: #172c42; background: #f3f5f9; }
+    :root { font: 16px/1.5 Inter, system-ui, sans-serif; color: #172c42; background: #f3f5f9; }
     * { box-sizing: border-box; }
     body { margin: 0; }
     main { max-width: 1400px; margin: auto; padding: 27px 28px 32px; }
     h1 { margin: 0; font-size: clamp(27px,4.5vw,41px); font-weight: 690; letter-spacing: -.045em; }
     h1 sub { font-size: .58em; }
     .subtitle { color: #53667c; margin: 2px 0 18px; }
-    .layout { display: grid; grid-template-columns: minmax(0,1fr) 252px; gap: 18px; align-items: start; }
+    .layout { display: grid; grid-template-columns: minmax(0,1fr) 265px; gap: 18px; align-items: start; }
     .card, .catalog { background: #fff; border: 1px solid #d8dfe9; border-radius: 14px; overflow: hidden; box-shadow: 0 12px 40px #1f33500a; }
     .stage { position: relative; height: clamp(370px,59vh,720px); background: radial-gradient(ellipse at 50% 46%,#293c57,#121e30 65%,#0c1523); color: #e8eef9; overflow: hidden; }
     #viewport, #viewport canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
@@ -24,29 +24,29 @@
     .stage-title span { display: block; color: #b5c9df; font-size: 12px; font-variant-numeric: tabular-nums; }
     .views { display: flex; position: absolute; top: 14px; right: 14px; gap: 3px; padding: 4px; border: 1px solid #8798b74d; background: #0b1525d9; border-radius: 8px; }
     button, select { font: inherit; cursor: pointer; }
-    .views button { padding: 4px 8px; color: #dce8f6; background: transparent; border: 1px solid transparent; border-radius: 5px; font-size: 13px; }
+    .views button { padding: 4px 8px; color: #dce8f6; background: transparent; border: 1px solid transparent; border-radius: 5px; font-size: 14px; }
     .views button[aria-pressed="true"] { background: #334a69; color: white; }
     .views button:hover { border-color: #8b9fbb; }
     .axis { position: absolute; left: 12px; bottom: 11px; pointer-events: none; }
-    .legend { position: absolute; right: 14px; bottom: 14px; width: 178px; padding: 7px 10px; border-radius: 7px; background: #0b1525dc; color: #dbe6f5; font-size: 11px; pointer-events: none; }
+    .legend { position: absolute; right: 14px; bottom: 14px; width: 208px; padding: 7px 10px; border-radius: 7px; background: #0b1525dc; color: #dbe6f5; font-size: 12px; pointer-events: none; }
     .ramp { height: 6px; margin: 4px 0 2px; border-radius: 3px; background: linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); }
     .ticks { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
-    .load { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; width: max-content; max-width: 85%; margin: 0; font-size: 13px; background: #0b1525e6; padding: 7px 12px; border-radius: 6px; }
+    .load { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; width: max-content; max-width: 85%; margin: 0; font-size: 14px; background: #0b1525e6; padding: 7px 12px; border-radius: 6px; }
     .transport { display: grid; grid-template-columns: 76px minmax(0,1fr) auto; gap: 15px; align-items: center; padding: 14px 16px; }
     .transport button { border: 0; border-radius: 7px; background: #192c4a; color: white; height: 40px; }
     .transport button:hover { background: #2e4870; }
     button:disabled, input:disabled, select:disabled { cursor: default; opacity: .55; }
     button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid #5794d8; outline-offset: 2px; }
-    .phase { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; font-size: 13px; color: #43546c; }
+    .phase { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; font-size: 14px; color: #43546c; }
     .phase output { font-variant-numeric: tabular-nums; }
     input[type='range'] { grid-column: 1 / -1; margin: 4px 0 0; width: 100%; accent-color: #386aa8; cursor: pointer; }
-    .speed { display: flex; gap: 6px; align-items: center; font-size: 13px; color: #43546c; }
+    .speed { display: flex; gap: 6px; align-items: center; font-size: 14px; color: #43546c; }
     select { color: #142134; padding: 5px 7px; background: #f0f3f8; border: 1px solid #d8dfe9; border-radius: 7px; }
     .caption { display: flex; flex-wrap: wrap; gap: 4px 15px; padding: 10px 1px 0; font-size: 12px; color: #53647a; }
     .catalog { padding: 12px; }
     .catalog h2 { margin: 3px 5px 10px; font-size: 16px; font-weight: 670; }
     #mode-list { display: grid; gap: 3px; }
-    .mode { display: flex; justify-content: space-between; align-items: baseline; gap: 7px; width: 100%; border: 1px solid transparent; border-radius: 7px; color: #223952; background: transparent; padding: 8px 10px; font-size: 13px; text-align: left; }
+    .mode { display: flex; justify-content: space-between; align-items: baseline; gap: 7px; width: 100%; border: 1px solid transparent; border-radius: 7px; color: #223952; background: transparent; padding: 8px 10px; font-size: 14px; text-align: left; }
     .mode:hover { background: #f0f4fa; }
     .mode[aria-pressed="true"] { border-color: #a8bedb; background: #e8f1fd; font-weight: 650; }
     .mode span + span { color: #4b5f79; font-variant-numeric: tabular-nums; }
@@ -64,59 +64,98 @@
       .views button { padding: 4px; }
       .transport { gap: 9px; padding: 10px; grid-template-columns: 58px minmax(0,1fr) auto; }
       .speed { gap: 2px; flex-direction: column; }
-      .legend { width: 138px; right: 9px; bottom: 9px; }
+      .legend { width: 169px; right: 9px; bottom: 9px; }
+    }
+
+    [hidden] { display: none !important; }
+    #configuration-heading, #configuration-title { margin: 22px 0 7px; font-size: 23px; font-weight: 650; letter-spacing: -.02em; }
+    #configuration-title { margin: 0 0 13px; }
+    .section-intro { color: #53667c; margin: 0 0 20px; }
+    #configuration-list { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 13px; }
+    .configuration-card { display: block; border: 1px solid #d8dfe9; border-radius: 12px; padding: 22px; background: white; text-decoration: none; color: inherit; transition: border-color .15s, box-shadow .15s; }
+    .configuration-card:hover { border-color: #799fc9; box-shadow: 0 6px 18px #2038580c; }
+    .configuration-card:focus-visible { outline: 2px solid #5794d8; outline-offset: 3px; }
+    .configuration-name { display: block; font-size: 26px; font-weight: 650; letter-spacing: -.03em; }
+    .configuration-status { display: block; font-size: 14px; color: #5a6b80; margin-top: 11px; }
+    .configuration-card.available { border-color: #a8bedb; background: #f7faff; }
+    .configuration-card.available .configuration-status { color: #285a93; }
+    .breadcrumb { display: flex; gap: 10px; align-items: center; margin: 12px 0 13px; font-size: 14px; color: #60728a; }
+    .breadcrumb a { color: #315f93; text-underline-offset: 3px; }
+    .mode:disabled { opacity: 1; color: #69798b; }
+    .mode:disabled span + span { color: #69798b; font-size: 12px; }
+    .mode:disabled:hover { background: transparent; }
+    .load button { display: block; margin: 9px auto 0; border: 1px solid #8798b7; border-radius: 5px; background: #243953; padding: 4px 10px; color: white; }
+    @media (max-width: 480px) {
+      #configuration-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+      .configuration-card { padding: 15px 12px; }
+      .configuration-status { font-size: 12px; }
+      .stage-title { top: 58px; }
     }
   </style>
 </head>
 <body>
 <main>
   <header>
-    <h1>Hopfion A<sub>1,1</sub> 本征模</h1>
-    <p class="subtitle">n = 63 &nbsp;·&nbsp; K<sub>u</sub> = 0.002 &nbsp;·&nbsp; 10 个 mode</p>
+    <h1>Hopfion eigenmodes</h1>
+    <p class="subtitle">Supplementary visualizations &nbsp;·&nbsp; n = 63 &nbsp;·&nbsp; K<sub>u</sub> = 0.002</p>
   </header>
-  <div class="layout">
-    <section aria-label="模态播放">
+  <section id="configuration-screen" aria-labelledby="configuration-heading">
+    <h2 id="configuration-heading">Torus configurations</h2>
+    <p class="section-intro">Select a configuration to explore its modes.</p>
+    <div id="configuration-list"></div>
+  </section>
+  <section id="viewer-screen" hidden aria-labelledby="configuration-title">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="#configurations">Configurations</a>
+      <span aria-hidden="true">/</span>
+      <span id="breadcrumb-name" aria-current="page"></span>
+    </nav>
+    <h2 id="configuration-title" tabindex="-1"></h2>
+    <div class="layout">
+    <section aria-label="Mode animation">
       <div class="card">
         <div class="stage">
           <div id="viewport"></div>
           <div class="stage-title"><strong id="mode-title"></strong><span id="mode-frequency"></span></div>
-          <p id="status" class="load" role="status">载入三维相位数据…</p>
-          <div class="views" aria-label="预设视角">
-            <button type="button" data-view="oblique" aria-pressed="true">斜视</button>
-            <button type="button" data-view="top" aria-pressed="false">俯视</button>
-            <button type="button" data-view="side" aria-pressed="false">侧视</button>
-            <button type="button" data-view="bottom" aria-pressed="false">底视</button>
+          <p id="status" class="load" role="status">Loading 3D phase data…</p>
+          <div class="views" aria-label="Preset views">
+            <button type="button" data-view="oblique" aria-pressed="true">Oblique</button>
+            <button type="button" data-view="top" aria-pressed="false">Top</button>
+            <button type="button" data-view="side" aria-pressed="false">Side</button>
+            <button type="button" data-view="bottom" aria-pressed="false">Bottom</button>
           </div>
-          <canvas class="axis" id="axis" width="160" height="160" style="width:80px;height:80px" aria-label="模拟坐标轴"></canvas>
+          <canvas class="axis" id="axis" width="160" height="160" style="width:80px;height:80px" aria-label="Simulation coordinate axes"></canvas>
           <div class="legend">
-            <div>面内磁化方向 atan2(m<sub>y</sub>, m<sub>x</sub>)</div>
+            <div>In-plane magnetization angle atan2(m<sub>y</sub>, m<sub>x</sub>)</div>
             <div class="ramp"></div>
             <div class="ticks"><span>−180°</span><span>0°</span><span>180°</span></div>
           </div>
         </div>
         <div class="transport">
-          <button type="button" id="play" disabled>播放</button>
-          <label class="phase" for="phase"><span>相位</span><output id="phase-text" for="phase">0° · 01 / 30</output>
+          <button type="button" id="play" disabled>Play</button>
+          <label class="phase" for="phase"><span>Phase</span><output id="phase-text" for="phase">0° · 01 / 30</output>
             <input id="phase" type="range" min="0" max="29" step="1" value="0" disabled>
           </label>
-          <label class="speed" for="speed">倍速
+          <label class="speed" for="speed">Speed
             <select id="speed" disabled><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
           </label>
         </div>
       </div>
       <div class="caption">
-        <span>左键自由旋转 · 靠边拖弧可滚转 · 右键平移 · 滚轮缩放</span>
-        <span>m<sub>z</sub> = 0 曲面 · 30 相位 · 展示增益 100×</span>
-        <span>1× 播放每周期 3 秒</span>
+        <span>Drag to rotate · Drag near the edge to roll · Right-drag to pan · Scroll to zoom</span>
+        <span>m<sub>z</sub> = 0 isosurface · 30 phases · Display amplification 100×</span>
+        <span>Phase playback · 3 s per cycle at 1×</span>
       </div>
     </section>
     <aside class="catalog" aria-labelledby="catalog-title">
-      <h2 id="catalog-title">选择 mode</h2>
+      <h2 id="catalog-title">Modes</h2>
       <div id="mode-list"></div>
     </aside>
-  </div>
+    </div>
+  </section>
 </main>
 <script src="data/catalog.js"></script>
+<script src="data/configurations.js"></script>
 <script>
 /*
 The MIT License
@@ -3386,7 +3425,7 @@ const phaseText = document.querySelector('#phase-text');
 const speed = document.querySelector('#speed');
 const viewButtons = [...document.querySelectorAll('[data-view]')];
 const axis = document.querySelector('#axis').getContext('2d');
-const catalog = window.HopfionModeCatalog;
+const configurations = window.HopfionConfigurations;
 
 const views = {
   oblique: { position: [64, -85, 62], up: [0, 0, 1] },
@@ -3449,24 +3488,42 @@ function drawAxes(camera) {
 }
 
 
-function readMode(entry) {
+
+function readMode(configuration, entry) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
+    let settled = false;
+    const timeout = setTimeout(() => finish(new Error('The mode download timed out.')), 60000);
+
+    function finish(error, frames) {
+      if (settled) return;
+      settled = true;
+      script.onload = null;
+      script.onerror = null;
+      clearTimeout(timeout);
+      script.remove();
+      if (error) reject(error);
+      else resolve(frames);
+    }
+
     script.src = entry.file;
     script.onload = () => {
       const payload = window.HopfionModeFrames;
       delete window.HopfionModeFrames;
-      script.remove();
-      if (payload?.mode.index !== entry.index || payload.frames.length !== catalog.phaseCount) {
-        reject(new Error(`Unexpected data for mode ${entry.index}`));
+      const meta = payload?.mode;
+      if (meta?.index !== entry.index ||
+          meta?.label !== configuration.name ||
+          meta?.n !== configuration.n ||
+          meta?.ku !== configuration.ku ||
+          meta?.sourceModeSha256 !== entry.sourceModeSha256 ||
+          !Array.isArray(payload?.frames) ||
+          payload.frames.length !== configuration.phaseCount) {
+        finish(new Error('The mode data do not match the selected configuration.'));
         return;
       }
-      resolve(payload.frames);
+      finish(null, payload.frames);
     };
-    script.onerror = () => {
-      script.remove();
-      reject(new Error(`Could not load ${entry.file}`));
-    };
+    script.onerror = () => finish(new Error('The mode file could not be downloaded.'));
     document.head.append(script);
   });
 }
@@ -3475,12 +3532,44 @@ function label(index) {
   return `Mode ${String(index).padStart(2, '0')}`;
 }
 
+function configurationName(element, configuration) {
+  const subscript = document.createElement('sub');
+  subscript.textContent = configuration.name.slice(1);
+  element.replaceChildren('A', subscript);
+}
+
 function start() {
-  if (!catalog) throw new Error('Mode catalog unavailable.');
+  if (!configurations?.length) throw new Error('The configuration catalog is unavailable.');
+
+  const overview = document.querySelector('#configuration-screen');
+  const detail = document.querySelector('#viewer-screen');
+  const title = document.querySelector('#configuration-title');
+  const stageTitle = document.querySelector('#mode-title');
+  const frequencyLabel = document.querySelector('#mode-frequency');
+  const modeList = document.querySelector('#mode-list');
+  const buttons = new Map();
+
+  const configurationList = document.querySelector('#configuration-list');
+  for (const configuration of configurations) {
+    const link = document.createElement('a');
+    link.href = `#configuration/${configuration.id}`;
+    link.className = 'configuration-card';
+    if (configuration.modes.length) link.classList.add('available');
+    const name = document.createElement('span');
+    name.className = 'configuration-name';
+    configurationName(name, configuration);
+    const state = document.createElement('span');
+    state.className = 'configuration-status';
+    state.textContent = configuration.modes.length
+      ? `${configuration.modes.length} mode visualizations`
+      : 'Visualizations pending';
+    link.append(name, state);
+    configurationList.append(link);
+  }
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-  renderer.domElement.setAttribute('aria-label', 'Hopfion 三维曲面');
+  renderer.domElement.setAttribute('aria-label', 'Interactive Hopfion isosurface');
   viewport.append(renderer.domElement);
 
   const scene = new THREE.Scene();
@@ -3491,6 +3580,7 @@ function start() {
   controls.minZoom = .45;
   controls.maxZoom = 4;
   controls.enableAnimations = false;
+  controls.enabled = false;
 
   scene.add(new THREE.HemisphereLight(0xeef5ff, 0xd9e1f5, 1.5));
   const key = new THREE.DirectionalLight(0xffffff, 1.75);
@@ -3510,6 +3600,7 @@ function start() {
 
   let frames = [];
   let geometries = [];
+  let activeConfiguration = null;
   let selection = null;
   let request = 0;
   let ready = false;
@@ -3519,10 +3610,8 @@ function start() {
   let elapsed = 0;
   let lastTime = performance.now();
   let standardView = 'oblique';
-  const frameMs = 1000 / catalog.framesPerSecond;
-  const cycleMs = frameMs * catalog.phaseCount;
-  const modeList = document.querySelector('#mode-list');
-  const buttons = new Map();
+  let frameMs = 100;
+  let cycleMs = 3000;
 
   function resize() {
     const { clientWidth: width, clientHeight: height } = viewport;
@@ -3539,7 +3628,6 @@ function start() {
     dirty = true;
   }
   new ResizeObserver(resize).observe(viewport);
-  resize();
 
   function selectView(name) {
     standardView = name;
@@ -3575,12 +3663,13 @@ function start() {
   function setPlaying(value) {
     playing = value;
     lastTime = performance.now();
-    playButton.textContent = playing ? '暂停' : '播放';
+    playButton.textContent = playing ? 'Pause' : 'Play';
   }
 
   function setReady(value) {
     ready = value;
-    for (const control of [playButton, slider, speed]) control.disabled = !ready;
+    controls.enabled = value;
+    for (const control of [playButton, slider, speed, ...viewButtons]) control.disabled = !value;
   }
 
   function clearScene() {
@@ -3588,27 +3677,41 @@ function start() {
     surface.geometry = empty;
     geometries.forEach(geometry => geometry?.dispose());
     geometries = [];
+    frames = [];
+    document.querySelector('#axis').hidden = true;
+    document.querySelector('.legend').hidden = true;
     dirty = true;
+  }
+
+  function cancelMode() {
+    request++;
+    selection = null;
+    setReady(false);
+    clearScene();
   }
 
   async function selectMode(entry) {
     if (entry === selection) return;
     selection = entry;
+    const configuration = activeConfiguration;
     const ticket = ++request;
-    for (const [item, button] of buttons) button.setAttribute('aria-pressed', String(item === entry));
-    document.querySelector('#mode-title').textContent = label(entry.index);
-    document.querySelector('#mode-frequency').textContent = `${entry.frequencyGHz} GHz`;
+    for (const [index, button] of buttons) {
+      button.setAttribute('aria-pressed', String(index === entry.index));
+    }
+    stageTitle.textContent = label(entry.index);
+    frequencyLabel.textContent = `${entry.frequencyGHz} GHz`;
     setReady(false);
     clearScene();
-    status.textContent = `载入 ${label(entry.index)}…`;
+    status.textContent = `Loading ${label(entry.index)}…`;
     status.hidden = false;
     try {
-      const sources = await readMode(entry);
+      const sources = await readMode(configuration, entry);
       if (ticket !== request) return;
       frames = sources;
       geometries = new Array(sources.length);
+      const initialFrame = selectedFrame % sources.length;
       for (let offset = 0; offset < sources.length; offset++) {
-        const index = (selectedFrame + offset) % sources.length;
+        const index = (initialFrame + offset) % sources.length;
         const geometry = await readGeometry(sources[index]);
         if (ticket !== request) {
           geometry.dispose();
@@ -3617,9 +3720,11 @@ function start() {
         geometries[index] = geometry;
         if (offset === 0) {
           surface.visible = true;
+          document.querySelector('#axis').hidden = false;
+          document.querySelector('.legend').hidden = false;
           showFrame(index);
         }
-        status.textContent = `载入三维相位 ${offset + 1} / ${sources.length}…`;
+        status.textContent = `Loading phase ${offset + 1} of ${sources.length}…`;
       }
       status.hidden = true;
       lastTime = performance.now();
@@ -3628,34 +3733,84 @@ function start() {
       if (ticket !== request) return;
       clearScene();
       selection = null;
-      status.textContent = '模态未能载入。请保留 data 文件夹，或点选模态重试。';
+      status.textContent = 'The visualization could not be loaded.';
+      const retry = document.createElement('button');
+      retry.type = 'button';
+      retry.textContent = 'Retry';
+      retry.addEventListener('click', () => void selectMode(entry));
+      status.append(retry);
       console.error(error);
     }
   }
 
-  function selectFromUrl() {
-    const match = location.hash.match(/^#mode-(\d+)$/);
-    const entry = catalog.modes.find(item => item.index === Number(match?.[1]));
-    void selectMode(entry ?? catalog.modes[0]);
+  function showConfiguration(configuration) {
+    cancelMode();
+    activeConfiguration = configuration;
+    selectedFrame = 0;
+    elapsed = 0;
+    slider.value = '0';
+    slider.max = String(configuration.phaseCount - 1);
+    phaseText.value = '0° · 01 / 30';
+    frameMs = 1000 / configuration.framesPerSecond;
+    cycleMs = frameMs * configuration.phaseCount;
+    overview.hidden = true;
+    detail.hidden = false;
+    configurationName(title, configuration);
+    title.focus();
+    window.scrollTo({ top: 0 });
+    document.querySelector('#breadcrumb-name').textContent = configuration.name;
+    document.title = `${configuration.name} | Hopfion eigenmodes`;
+    modeList.replaceChildren();
+    buttons.clear();
+    for (let index = 1; index <= configuration.modeCount; index++) {
+      const entry = configuration.modes.find(item => item.index === index);
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'mode';
+      button.setAttribute('aria-pressed', 'false');
+      button.disabled = !entry;
+      const name = document.createElement('span');
+      name.textContent = label(index);
+      const state = document.createElement('span');
+      state.textContent = entry ? `${entry.frequencyGHz} GHz` : 'Pending';
+      button.append(name, state);
+      modeList.append(button);
+      buttons.set(index, button);
+      if (entry) {
+        button.addEventListener('click', () => {
+          const hash = `#configuration/${configuration.id}/mode/${String(index).padStart(2, '0')}`;
+          if (location.hash === hash) void selectMode(entry);
+          else location.hash = hash;
+        });
+      }
+    }
+    const hasModes = configuration.modes.length > 0;
+    document.querySelector('.transport').hidden = !hasModes;
+    document.querySelector('.caption').hidden = !hasModes;
+    document.querySelector('.views').hidden = !hasModes;
+    stageTitle.textContent = '';
+    frequencyLabel.textContent = '';
+    status.textContent = 'Mode visualizations for this configuration are pending.';
+    status.hidden = hasModes;
+    resize();
   }
 
-  for (const entry of catalog.modes) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.className = 'mode';
-    button.setAttribute('aria-pressed', 'false');
-    const name = document.createElement('span');
-    name.textContent = label(entry.index);
-    const frequency = document.createElement('span');
-    frequency.textContent = `${entry.frequencyGHz} GHz`;
-    button.append(name, frequency);
-    modeList.append(button);
-    buttons.set(entry, button);
-    button.addEventListener('click', () => {
-      const hash = `#mode-${String(entry.index).padStart(2, '0')}`;
-      if (location.hash === hash) void selectMode(entry);
-      else location.hash = hash;
-    });
+  function navigate() {
+    const legacy = location.hash.match(/^#mode-(\d+)$/);
+    const route = location.hash.match(/^#configuration\/([a-z0-9-]+)(?:\/mode\/(\d+))?$/);
+    const configuration = configurations.find(item => item.id === (legacy ? 'a1-1' : route?.[1]));
+    if (!configuration) {
+      cancelMode();
+      activeConfiguration = null;
+      overview.hidden = false;
+      detail.hidden = true;
+      document.title = 'Hopfion eigenmodes | Supplementary visualizations';
+      return;
+    }
+    if (activeConfiguration !== configuration) showConfiguration(configuration);
+    const index = Number(legacy?.[1] ?? route?.[2]);
+    const entry = configuration.modes.find(item => item.index === index) ?? configuration.modes[0];
+    if (entry) void selectMode(entry);
   }
 
   function render(now) {
@@ -3665,7 +3820,7 @@ function start() {
       if (next !== selectedFrame) showFrame(next);
     }
     lastTime = now;
-    if (dirty) {
+    if (dirty && !detail.hidden) {
       drawAxes(camera);
       renderer.render(scene, camera);
       dirty = false;
@@ -3679,16 +3834,19 @@ function start() {
     showFrame(Number(slider.value));
   });
   setPlaying(playing);
-  window.addEventListener('hashchange', selectFromUrl);
+  window.addEventListener('hashchange', navigate);
   renderer.setAnimationLoop(render);
-  selectFromUrl();
+  navigate();
 }
 
 try {
   start();
 } catch (error) {
   console.error(error);
-  status.textContent = '三维场景无法初始化。请用支持 WebGL 的新版浏览器打开。';
+  const message = document.createElement('p');
+  message.setAttribute('role', 'status');
+  message.textContent = 'The 3D viewer requires a browser with WebGL support.';
+  document.querySelector('#configuration-screen').append(message);
 }
 
 </script>
