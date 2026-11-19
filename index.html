@@ -3,154 +3,166 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f3f5f9">
+  <meta name="theme-color" content="#ffffff">
   <title>Hopfion eigenmodes | Supplementary visualizations</title>
   <style>
-    :root { font: 16px/1.5 Inter, system-ui, sans-serif; color: #172c42; background: #f3f5f9; }
+    :root { font: 16px/1.45 Arial, Helvetica, sans-serif; color: #202020; background: #fff; font-synthesis: none; --line: #d8d8d8; --muted: #666; }
     * { box-sizing: border-box; }
     body { margin: 0; }
-    main { max-width: 1400px; margin: auto; padding: 27px 28px 32px; }
-    h1 { margin: 0; font-size: clamp(27px,4.5vw,41px); font-weight: 690; letter-spacing: -.045em; }
-    h1 sub { font-size: .58em; }
-    .subtitle { color: #53667c; margin: 2px 0 18px; }
-    .layout { display: grid; grid-template-columns: minmax(0,1fr) 265px; gap: 18px; align-items: start; }
-    .card, .catalog { background: #fff; border: 1px solid #d8dfe9; border-radius: 14px; overflow: hidden; box-shadow: 0 12px 40px #1f33500a; }
-    .stage { position: relative; height: clamp(370px,59vh,720px); background: radial-gradient(ellipse at 50% 46%,#293c57,#121e30 65%,#0c1523); color: #e8eef9; overflow: hidden; }
-    #viewport, #viewport canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+    [hidden] { display: none !important; }
+    main { max-width: 1480px; margin: 0 auto; padding: 27px 40px 36px; }
+    .site-header { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #252525; padding-bottom: 17px; margin-bottom: 25px; }
+    h1 { margin: 0; font: 400 clamp(29px,3.2vw,36px)/1.15 Georgia, 'Times New Roman', serif; letter-spacing: -.025em; }
+    .subtitle { margin: 7px 0 0; font-size: 14px; color: var(--muted); }
+    .document-type { flex: 0 0 auto; font-size: 14px; color: var(--muted); }
+    #configuration-heading { margin: 30px 0 7px; font-size: 16px; font-weight: 600; }
+    #configuration-list { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); column-gap: 34px; }
+    .configuration-card { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 24px 0 18px; border-bottom: 1px solid var(--line); color: inherit; text-decoration: none; }
+    .configuration-name { font: 400 30px/1.2 Georgia, 'Times New Roman', serif; }
+    .configuration-name sub { font-size: .6em; }
+    .configuration-status { color: var(--muted); font-size: 14px; white-space: nowrap; }
+    .configuration-card:hover { border-color: #555; }
+    .configuration-card:hover .configuration-name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+    a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #333; outline-offset: 4px; }
+    .breadcrumb { margin: 0 0 9px; font-size: 14px; }
+    .breadcrumb a { color: var(--muted); text-underline-offset: 3px; }
+    .breadcrumb a:hover { color: #111; }
+    #configuration-title { margin: 0 0 15px; font: 400 28px/1.25 Georgia, 'Times New Roman', serif; }
+    #configuration-title sub { font-size: .6em; }
+    .layout { display: grid; grid-template-columns: minmax(0,1fr) 224px; gap: 32px; align-items: start; }
+    .card { border: 1px solid var(--line); }
+    .figure-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 0 15px; min-height: 43px; border-bottom: 1px solid var(--line); }
+    .stage-title { display: flex; align-items: baseline; gap: 15px; }
+    .stage-title strong { font-size: 14px; font-weight: 600; white-space: nowrap; }
+    .stage-title span { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    button, input, select { font: inherit; }
+    button, select { cursor: pointer; }
+    .views { display: flex; align-items: center; gap: 14px; align-self: stretch; }
+    .views button { padding: 1px 0 0; border: 0; border-bottom: 2px solid transparent; color: var(--muted); background: transparent; font-size: 14px; }
+    .views button:hover { color: #111; }
+    .views button[aria-pressed="true"] { border-bottom-color: #333; color: #111; }
+    .stage { position: relative; height: clamp(320px,calc(100vh - 355px),700px); background: #fff; overflow: hidden; }
+    #viewport, #viewport canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
     #viewport canvas { cursor: grab; }
     #viewport canvas:active { cursor: grabbing; }
-    .stage-title { position: absolute; top: 15px; left: 18px; pointer-events: none; }
-    .stage-title strong { display: block; font-size: 16px; }
-    .stage-title span { display: block; color: #b5c9df; font-size: 12px; font-variant-numeric: tabular-nums; }
-    .views { display: flex; position: absolute; top: 14px; right: 14px; gap: 3px; padding: 4px; border: 1px solid #8798b74d; background: #0b1525d9; border-radius: 8px; }
-    button, select { font: inherit; cursor: pointer; }
-    .views button { padding: 4px 8px; color: #dce8f6; background: transparent; border: 1px solid transparent; border-radius: 5px; font-size: 14px; }
-    .views button[aria-pressed="true"] { background: #334a69; color: white; }
-    .views button:hover { border-color: #8b9fbb; }
-    .axis { position: absolute; left: 12px; bottom: 11px; pointer-events: none; }
-    .legend { position: absolute; right: 14px; bottom: 14px; width: 208px; padding: 7px 10px; border-radius: 7px; background: #0b1525dc; color: #dbe6f5; font-size: 12px; pointer-events: none; }
-    .ramp { height: 6px; margin: 4px 0 2px; border-radius: 3px; background: linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); }
-    .ticks { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
-    .load { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; width: max-content; max-width: 85%; margin: 0; font-size: 14px; background: #0b1525e6; padding: 7px 12px; border-radius: 6px; }
-    .transport { display: grid; grid-template-columns: 76px minmax(0,1fr) auto; gap: 15px; align-items: center; padding: 14px 16px; }
-    .transport button { border: 0; border-radius: 7px; background: #192c4a; color: white; height: 40px; }
-    .transport button:hover { background: #2e4870; }
-    button:disabled, input:disabled, select:disabled { cursor: default; opacity: .55; }
-    button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid #5794d8; outline-offset: 2px; }
-    .phase { display: grid; grid-template-columns: 1fr auto; gap: 0 8px; font-size: 14px; color: #43546c; }
+    .axis { position: absolute; left: 8px; bottom: 7px; pointer-events: none; }
+    .legend { position: absolute; right: 17px; bottom: 15px; width: 195px; padding: 4px 0 0; color: #444; background: #ffffffed; font-size: 14px; pointer-events: none; }
+    .legend-label { text-align: center; }
+    .ramp { height: 5px; margin: 5px 0 3px; background: linear-gradient(90deg,#f00,#ff0,#0f0,#0ff,#00f,#f0f,#f00); }
+    .ticks { display: flex; justify-content: space-between; font-size: 13px; font-variant-numeric: tabular-nums; }
+    .load { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); margin: 0; max-width: 85%; padding: 7px 10px; text-align: center; color: #555; background: #fffffff2; font-size: 14px; }
+    .load button { display: block; margin: 10px auto 0; padding: 5px 13px; background: #fff; border: 1px solid #999; color: #222; font-size: 14px; }
+    .transport { display: grid; grid-template-columns: 65px minmax(0,1fr) auto; align-items: center; gap: 18px; min-height: 65px; padding: 11px 15px; border-top: 1px solid var(--line); }
+    .transport button { height: 34px; padding: 0 10px; border: 1px solid #555; background: #fff; color: #222; font-size: 14px; }
+    .transport button:hover { background: #f2f2f2; }
+    .phase { display: grid; grid-template-columns: 1fr auto; gap: 1px 10px; color: #555; font-size: 14px; }
     .phase output { font-variant-numeric: tabular-nums; }
-    input[type='range'] { grid-column: 1 / -1; margin: 4px 0 0; width: 100%; accent-color: #386aa8; cursor: pointer; }
-    .speed { display: flex; gap: 6px; align-items: center; font-size: 14px; color: #43546c; }
-    select { color: #142134; padding: 5px 7px; background: #f0f3f8; border: 1px solid #d8dfe9; border-radius: 7px; }
-    .caption { display: flex; flex-wrap: wrap; gap: 4px 15px; padding: 10px 1px 0; font-size: 12px; color: #53647a; }
-    .catalog { padding: 12px; }
-    .catalog h2 { margin: 3px 5px 10px; font-size: 16px; font-weight: 670; }
-    #mode-list { display: grid; gap: 3px; }
-    .mode { display: flex; justify-content: space-between; align-items: baseline; gap: 7px; width: 100%; border: 1px solid transparent; border-radius: 7px; color: #223952; background: transparent; padding: 8px 10px; font-size: 14px; text-align: left; }
-    .mode:hover { background: #f0f4fa; }
-    .mode[aria-pressed="true"] { border-color: #a8bedb; background: #e8f1fd; font-weight: 650; }
-    .mode span + span { color: #4b5f79; font-variant-numeric: tabular-nums; }
+    input[type='range'] { grid-column: 1/-1; appearance: none; width: 100%; height: 15px; margin: 2px 0 0; background: transparent; accent-color: #333; cursor: pointer; }
+    input[type='range']::-webkit-slider-runnable-track { height: 2px; background: #ccc; }
+    input[type='range']::-webkit-slider-thumb { appearance: none; width: 9px; height: 12px; margin-top: -5px; background: #333; border: 0; border-radius: 0; }
+    input[type='range']::-moz-range-track { height: 2px; background: #ccc; }
+    input[type='range']::-moz-range-thumb { width: 9px; height: 12px; background: #333; border: 0; border-radius: 0; }
+    .speed { display: flex; align-items: center; gap: 8px; color: #555; font-size: 14px; }
+    select { appearance: none; padding: 5px 24px 5px 8px; border: 1px solid #ccc; border-radius: 0; background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='m1 1 4 4 4-4' fill='none' stroke='%23555'/%3E%3C/svg%3E") right 8px center/10px 6px no-repeat; color: #222; }
+    button:disabled, input:disabled, select:disabled { cursor: default; opacity: .45; }
+    .catalog { border-top: 1px solid #333; }
+    .catalog h2 { margin: 0; padding: 10px 8px 12px; font-size: 16px; font-weight: 600; }
+    .catalog-columns { display: flex; justify-content: space-between; padding: 0 8px 9px; border-bottom: 1px solid var(--line); color: #666; font-size: 14px; }
+    #mode-list { display: grid; }
+    .mode { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; width: 100%; padding: 10px 8px 10px 6px; border: 0; border-left: 2px solid transparent; border-bottom: 1px solid #e8e8e8; background: #fff; color: #555; text-align: left; font-size: 14px; font-variant-numeric: tabular-nums; }
+    .mode:hover { color: #111; background: #f7f7f7; }
+    .mode[aria-pressed="true"] { color: #111; font-weight: 700; border-left-color: #222; background: #f4f4f4; }
     .mode:focus-visible { outline-offset: -2px; }
-    @media (max-width: 800px) {
-      main { padding: 18px 12px 24px; }
-      .layout { grid-template-columns: minmax(0,1fr); gap: 14px; }
-      .stage { height: clamp(310px,50vh,600px); }
-      #mode-list { grid-template-columns: repeat(auto-fit,minmax(155px,1fr)); }
-      .catalog { padding: 9px; }
+    .mode:disabled { opacity: 1; color: #888; }
+    .mode:disabled:hover { background: #fff; }
+    @media (max-width: 1100px) {
+      #configuration-list { grid-template-columns: repeat(4,minmax(0,1fr)); column-gap: 28px; }
+      .layout { grid-template-columns: minmax(0,1fr) 202px; gap: 24px; }
+      .figure-toolbar { padding: 0 12px; gap: 12px; }
+      .views { gap: 10px; }
     }
-    @media (max-width: 430px) {
-      .stage-title { left: 10px; top: 12px; }
-      .views { right: 7px; top: 8px; }
-      .views button { padding: 4px; }
-      .transport { gap: 9px; padding: 10px; grid-template-columns: 58px minmax(0,1fr) auto; }
-      .speed { gap: 2px; flex-direction: column; }
-      .legend { width: 169px; right: 9px; bottom: 9px; }
+    @media (max-width: 820px) {
+      main { padding: 23px 24px 30px; }
+      .layout { grid-template-columns: minmax(0,1fr); gap: 26px; }
+      .stage { height: clamp(350px,56vh,650px); }
+      #configuration-list { grid-template-columns: repeat(3,minmax(0,1fr)); column-gap: 24px; }
     }
-
-    [hidden] { display: none !important; }
-    #configuration-heading, #configuration-title { margin: 22px 0 7px; font-size: 23px; font-weight: 650; letter-spacing: -.02em; }
-    #configuration-title { margin: 0 0 13px; }
-    .section-intro { color: #53667c; margin: 0 0 20px; }
-    #configuration-list { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 13px; }
-    .configuration-card { display: block; border: 1px solid #d8dfe9; border-radius: 12px; padding: 22px; background: white; text-decoration: none; color: inherit; transition: border-color .15s, box-shadow .15s; }
-    .configuration-card:hover { border-color: #799fc9; box-shadow: 0 6px 18px #2038580c; }
-    .configuration-card:focus-visible { outline: 2px solid #5794d8; outline-offset: 3px; }
-    .configuration-name { display: block; font-size: 26px; font-weight: 650; letter-spacing: -.03em; }
-    .configuration-status { display: block; font-size: 14px; color: #5a6b80; margin-top: 11px; }
-    .configuration-card.available { border-color: #a8bedb; background: #f7faff; }
-    .configuration-card.available .configuration-status { color: #285a93; }
-    .breadcrumb { display: flex; gap: 10px; align-items: center; margin: 12px 0 13px; font-size: 14px; color: #60728a; }
-    .breadcrumb a { color: #315f93; text-underline-offset: 3px; }
-    .mode:disabled { opacity: 1; color: #69798b; }
-    .mode:disabled span + span { color: #69798b; font-size: 12px; }
-    .mode:disabled:hover { background: transparent; }
-    .load button { display: block; margin: 9px auto 0; border: 1px solid #8798b7; border-radius: 5px; background: #243953; padding: 4px 10px; color: white; }
-    @media (max-width: 480px) {
-      #configuration-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
-      .configuration-card { padding: 15px 12px; }
-      .configuration-status { font-size: 12px; }
-      .stage-title { top: 58px; }
+    @media (max-width: 520px) {
+      main { padding: 19px 16px 28px; }
+      .site-header { display: block; padding-bottom: 15px; margin-bottom: 20px; }
+      .document-type { display: none; }
+      h1 { font-size: 29px; }
+      #configuration-heading { margin-top: 24px; }
+      #configuration-list { grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 25px; }
+      .configuration-card { padding: 21px 0 15px; }
+      .configuration-name { font-size: 28px; }
+      .configuration-status { font-size: 14px; }
+      .figure-toolbar { flex-wrap: wrap; gap: 4px; padding: 9px 10px 0; }
+      .stage-title { flex: 1 0 100%; gap: 12px; }
+      .views { min-height: 34px; gap: 20px; }
+      .stage { height: clamp(300px,50vh,440px); }
+      .legend { right: 10px; bottom: 9px; width: 160px; }
+      .transport { grid-template-columns: 53px minmax(0,1fr) auto; gap: 10px; padding: 11px 10px; }
+      .speed { gap: 0; }
+      .speed > span { display: none; }
+      select { padding-left: 6px; padding-right: 21px; background-position: right 6px center; }
     }
   </style>
 </head>
 <body>
 <main>
-  <header>
-    <h1>Hopfion eigenmodes</h1>
-    <p class="subtitle">Supplementary visualizations &nbsp;·&nbsp; n = 63 &nbsp;·&nbsp; K<sub>u</sub> = 0.002</p>
+  <header class="site-header">
+    <div>
+      <h1>Hopfion eigenmodes</h1>
+      <p class="subtitle">n = 63 &nbsp;·&nbsp; K<sub>u</sub> = 0.002</p>
+    </div>
+    <span class="document-type">Supplementary material</span>
   </header>
   <section id="configuration-screen" aria-labelledby="configuration-heading">
-    <h2 id="configuration-heading">Torus configurations</h2>
-    <p class="section-intro">Select a configuration to explore its modes.</p>
+    <h2 id="configuration-heading">Configurations</h2>
     <div id="configuration-list"></div>
   </section>
   <section id="viewer-screen" hidden aria-labelledby="configuration-title">
-    <nav class="breadcrumb" aria-label="Breadcrumb">
-      <a href="#configurations">Configurations</a>
-      <span aria-hidden="true">/</span>
-      <span id="breadcrumb-name" aria-current="page"></span>
-    </nav>
+    <nav class="breadcrumb" aria-label="Breadcrumb"><a href="#configurations">Configurations</a></nav>
     <h2 id="configuration-title" tabindex="-1"></h2>
     <div class="layout">
-    <section aria-label="Mode animation">
-      <div class="card">
-        <div class="stage">
-          <div id="viewport"></div>
-          <div class="stage-title"><strong id="mode-title"></strong><span id="mode-frequency"></span></div>
-          <p id="status" class="load" role="status">Loading 3D phase data…</p>
-          <div class="views" aria-label="Preset views">
-            <button type="button" data-view="oblique" aria-pressed="true">Oblique</button>
-            <button type="button" data-view="top" aria-pressed="false">Top</button>
-            <button type="button" data-view="side" aria-pressed="false">Side</button>
-            <button type="button" data-view="bottom" aria-pressed="false">Bottom</button>
+      <section aria-label="Mode animation">
+        <div class="card">
+          <div class="figure-toolbar">
+            <div class="stage-title"><strong id="mode-title"></strong><span id="mode-frequency"></span></div>
+            <div class="views" aria-label="Preset views">
+              <button type="button" data-view="oblique" aria-pressed="true">Oblique</button>
+              <button type="button" data-view="top" aria-pressed="false">Top</button>
+              <button type="button" data-view="side" aria-pressed="false">Side</button>
+              <button type="button" data-view="bottom" aria-pressed="false">Bottom</button>
+            </div>
           </div>
-          <canvas class="axis" id="axis" width="160" height="160" style="width:80px;height:80px" aria-label="Simulation coordinate axes"></canvas>
-          <div class="legend">
-            <div>In-plane magnetization angle atan2(m<sub>y</sub>, m<sub>x</sub>)</div>
-            <div class="ramp"></div>
-            <div class="ticks"><span>−180°</span><span>0°</span><span>180°</span></div>
+          <div class="stage">
+            <div id="viewport"></div>
+            <p id="status" class="load" role="status">Loading…</p>
+            <canvas class="axis" id="axis" width="160" height="160" style="width:80px;height:80px" aria-label="Simulation coordinate axes"></canvas>
+            <div class="legend">
+              <div class="legend-label">φ = atan2(m<sub>y</sub>, m<sub>x</sub>)</div>
+              <div class="ramp"></div>
+              <div class="ticks"><span>−180°</span><span>0°</span><span>180°</span></div>
+            </div>
+          </div>
+          <div class="transport">
+            <button type="button" id="play" disabled>Play</button>
+            <label class="phase" for="phase"><span>Phase</span><output id="phase-text" for="phase">0° · 01 / 30</output>
+              <input id="phase" type="range" min="0" max="29" step="1" value="0" disabled>
+            </label>
+            <label class="speed" for="speed"><span>Speed</span>
+              <select id="speed" aria-label="Speed" disabled><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
+            </label>
           </div>
         </div>
-        <div class="transport">
-          <button type="button" id="play" disabled>Play</button>
-          <label class="phase" for="phase"><span>Phase</span><output id="phase-text" for="phase">0° · 01 / 30</output>
-            <input id="phase" type="range" min="0" max="29" step="1" value="0" disabled>
-          </label>
-          <label class="speed" for="speed">Speed
-            <select id="speed" disabled><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option></select>
-          </label>
-        </div>
-      </div>
-      <div class="caption">
-        <span>Drag to rotate · Drag near the edge to roll · Right-drag to pan · Scroll to zoom</span>
-        <span id="display-description">m<sub>z</sub> = 0 isosurface · 30 phases · Display amplification 100×</span>
-        <span id="playback-description">Phase playback · 3 s per cycle at 1×</span>
-      </div>
-    </section>
-    <aside class="catalog" aria-labelledby="catalog-title">
-      <h2 id="catalog-title">Modes</h2>
-      <div id="mode-list"></div>
-    </aside>
+      </section>
+      <aside class="catalog" aria-labelledby="catalog-title">
+        <h2 id="catalog-title">Modes</h2>
+        <div class="catalog-columns" aria-hidden="true"><span>Mode</span><span>f (GHz)</span></div>
+        <div id="mode-list"></div>
+      </aside>
     </div>
   </section>
 </main>
@@ -3433,9 +3445,9 @@ const views = {
   bottom: { position: [0, 0, -100], up: [0, 1, 0] },
 };
 const axes = [
-  { direction: [1, 0, 0], color: '#ff8792', name: 'x' },
-  { direction: [0, 1, 0], color: '#87dbaa', name: 'y' },
-  { direction: [0, 0, 1], color: '#94bbff', name: 'z' },
+  { direction: [1, 0, 0], color: '#b34d4d', name: 'x' },
+  { direction: [0, 1, 0], color: '#397c54', name: 'y' },
+  { direction: [0, 0, 1], color: '#356da2', name: 'z' },
 ];
 
 async function readGeometry(frame) {
@@ -3620,7 +3632,7 @@ function start() {
     const state = document.createElement('span');
     state.className = 'configuration-status';
     state.textContent = configuration.modes.length
-      ? `${configuration.modes.length} mode visualizations`
+      ? `${configuration.modes.length} modes`
       : 'Visualizations pending';
     link.append(name, state);
     configurationList.append(link);
@@ -3852,12 +3864,7 @@ function start() {
     configurationName(title, configuration);
     title.focus();
     window.scrollTo({ top: 0 });
-    document.querySelector('#breadcrumb-name').textContent = configuration.name;
     document.title = `${configuration.name} | Hopfion eigenmodes`;
-    document.querySelector('#display-description').textContent =
-      `m_z = 0 isosurface · ${configuration.phaseCount} phases · Display amplification ${configuration.displayAmplitude}×`;
-    document.querySelector('#playback-description').textContent =
-      `Phase playback · ${cycleMs / 1000} s per cycle at 1×`;
     modeList.replaceChildren();
     buttons.clear();
     for (let index = 1; index <= configuration.modeCount; index++) {
@@ -3868,9 +3875,10 @@ function start() {
       button.setAttribute('aria-pressed', 'false');
       button.disabled = !entry;
       const name = document.createElement('span');
-      name.textContent = label(index);
+      name.textContent = String(index).padStart(2, '0');
       const state = document.createElement('span');
-      state.textContent = entry ? `${entry.frequencyGHz} GHz` : 'Pending';
+      state.textContent = entry ? `${entry.frequencyGHz}` : 'Pending';
+      if (entry) button.setAttribute('aria-label', `${label(index)}, ${entry.frequencyGHz} GHz`);
       button.append(name, state);
       modeList.append(button);
       buttons.set(index, button);
@@ -3884,7 +3892,6 @@ function start() {
     }
     const hasModes = configuration.modes.length > 0;
     document.querySelector('.transport').hidden = !hasModes;
-    document.querySelector('.caption').hidden = !hasModes;
     document.querySelector('.views').hidden = !hasModes;
     stageTitle.textContent = '';
     frequencyLabel.textContent = '';
