@@ -143,8 +143,8 @@
       </div>
       <div class="caption">
         <span>Drag to rotate · Drag near the edge to roll · Right-drag to pan · Scroll to zoom</span>
-        <span>m<sub>z</sub> = 0 isosurface · 30 phases · Display amplification 100×</span>
-        <span>Phase playback · 3 s per cycle at 1×</span>
+        <span id="display-description">m<sub>z</sub> = 0 isosurface · 30 phases · Display amplification 100×</span>
+        <span id="playback-description">Phase playback · 3 s per cycle at 1×</span>
       </div>
     </section>
     <aside class="catalog" aria-labelledby="catalog-title">
@@ -154,8 +154,7 @@
     </div>
   </section>
 </main>
-<script src="data/catalog.js"></script>
-<script src="data/configurations.js"></script>
+<script src="data/configurations.js?v=6160da199994"></script>
 <script>
 /*
 The MIT License
@@ -3489,43 +3488,103 @@ function drawAxes(camera) {
 
 
 
-function readMode(configuration, entry) {
+function loadAsset(url, byteCount, signal, consume) {
   return new Promise((resolve, reject) => {
     const script = document.createElement('script');
     let settled = false;
-    const timeout = setTimeout(() => finish(new Error('The mode download timed out.')), 60000);
+    const timeoutMs = Math.min(900000, Math.max(120000, (Number(byteCount) || 0) / 100000 * 1000 + 30000));
+    const timeout = setTimeout(() => finish(new Error('The mode download timed out.')), timeoutMs);
 
-    function finish(error, frames) {
+    function abort() {
+      finish(new DOMException('Mode loading was canceled.', 'AbortError'));
+    }
+
+    function finish(error, payload) {
       if (settled) return;
       settled = true;
       script.onload = null;
       script.onerror = null;
       clearTimeout(timeout);
+      signal?.removeEventListener('abort', abort);
       script.remove();
       if (error) reject(error);
-      else resolve(frames);
+      else resolve(payload);
     }
 
-    script.src = entry.file;
+    script.src = url;
     script.onload = () => {
-      const payload = window.HopfionModeFrames;
-      delete window.HopfionModeFrames;
-      const meta = payload?.mode;
-      if (meta?.index !== entry.index ||
-          meta?.label !== configuration.name ||
-          meta?.n !== configuration.n ||
-          meta?.ku !== configuration.ku ||
-          meta?.sourceModeSha256 !== entry.sourceModeSha256 ||
-          !Array.isArray(payload?.frames) ||
-          payload.frames.length !== configuration.phaseCount) {
-        finish(new Error('The mode data do not match the selected configuration.'));
-        return;
+      try {
+        finish(null, consume());
+      } catch (error) {
+        finish(error);
       }
-      finish(null, payload.frames);
     };
     script.onerror = () => finish(new Error('The mode file could not be downloaded.'));
+    if (signal?.aborted) {
+      abort();
+      return;
+    }
+    signal?.addEventListener('abort', abort, { once: true });
     document.head.append(script);
   });
+}
+
+async function readMode(configuration, entry, signal) {
+  const key = `${configuration.id}:${entry.index}`;
+  const modeUrl = new URL(entry.file, location.href);
+  const payload = await loadAsset(modeUrl.href, entry.bytes, signal, () => {
+    const registry = window.HopfionModeAssets;
+    const data = registry?.[key] ?? window.HopfionModeFrames;
+    if (registry?.[key]) delete registry[key];
+    if (data === window.HopfionModeFrames) delete window.HopfionModeFrames;
+    return data;
+  });
+  const meta = payload?.mode;
+  if (meta?.index !== entry.index ||
+      meta?.label !== configuration.name ||
+      meta?.n !== configuration.n ||
+      meta?.ku !== configuration.ku ||
+      meta?.frequencyGHz !== entry.frequencyGHz ||
+      meta?.phaseCount !== configuration.phaseCount ||
+      meta?.displayAmplitude !== configuration.displayAmplitude ||
+      meta?.sourceModeSha256 !== entry.sourceModeSha256 ||
+      !Array.isArray(payload?.frames)) {
+    throw new Error('The mode data do not match the selected configuration.');
+  }
+
+  const parts = payload.frameParts ?? payload.frameFiles?.map((file, index) => ({
+    file, key: `${key}:${index}`,
+  }));
+  if (parts?.length) {
+    if (payload.frames.length) throw new Error('The split mode contains duplicate phase data.');
+    for (const descriptor of parts) {
+      const partUrl = new URL(descriptor.file, modeUrl);
+      const asset = entry.parts?.find(item =>
+        new URL(item.file, location.href).pathname.split('/').pop() === partUrl.pathname.split('/').pop());
+      const part = await loadAsset(partUrl.href, asset?.bytes ?? descriptor.bytes, signal, () => {
+        const registry = window.HopfionModeParts;
+        const data = registry?.[descriptor.key];
+        if (data) delete registry[descriptor.key];
+        return data;
+      });
+      if (part?.configuration !== configuration.name || part?.mode !== entry.index ||
+          part?.start !== payload.frames.length || !Array.isArray(part?.frames) ||
+          part.frames.length === 0 ||
+          (descriptor.start !== undefined && part.start !== descriptor.start) ||
+          (descriptor.count !== undefined && part.frames.length !== descriptor.count) ||
+          payload.frames.length + part.frames.length > configuration.phaseCount) {
+        throw new Error('The mode part does not match its phase range.');
+      }
+      payload.frames.push(...part.frames);
+    }
+  }
+  if (signal?.aborted) throw new DOMException('Mode loading was canceled.', 'AbortError');
+  if (payload.frames.length !== configuration.phaseCount ||
+      payload.frames.some((frame, index) => !Number.isFinite(frame.phase) ||
+        Math.abs(frame.phase - index / configuration.phaseCount) > 1e-12)) {
+    throw new Error('The mode data contain an incomplete phase cycle.');
+  }
+  return payload;
 }
 
 function label(index) {
@@ -3603,6 +3662,7 @@ function start() {
   let activeConfiguration = null;
   let selection = null;
   let request = 0;
+  let loadController = null;
   let ready = false;
   let dirty = true;
   let playing = !matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -3612,12 +3672,15 @@ function start() {
   let standardView = 'oblique';
   let frameMs = 100;
   let cycleMs = 3000;
+  let cameraCenter = new THREE.Vector3();
+  let fittedHalfSize = 13.2;
+  let needsFit = true;
 
   function resize() {
     const { clientWidth: width, clientHeight: height } = viewport;
     if (!height || !width) return;
     const aspect = width / height;
-    const halfHeight = Math.max(13.2, 12.5 / aspect);
+    const halfHeight = Math.max(fittedHalfSize, fittedHalfSize / aspect);
     camera.left = -halfHeight * aspect;
     camera.right = -camera.left;
     camera.top = halfHeight;
@@ -3633,17 +3696,35 @@ function start() {
     standardView = name;
     for (const button of viewButtons) button.setAttribute('aria-pressed', String(button.dataset.view === name));
   }
+
+  function applyView(name) {
+    const { position, up } = views[name];
+    controls.target.copy(cameraCenter);
+    camera.position.copy(cameraCenter).add(new THREE.Vector3(...position));
+    camera.up.set(...up);
+    camera.zoom = 1;
+    camera.updateProjectionMatrix();
+    controls.setCamera(camera);
+    selectView(name);
+    dirty = true;
+  }
+
+  function fitConfiguration(bounds) {
+    if (!bounds?.min || !bounds?.max) return;
+    const minimum = new THREE.Vector3(...bounds.min);
+    const maximum = new THREE.Vector3(...bounds.max);
+    const size = maximum.clone().sub(minimum);
+    if (!Number.isFinite(size.length()) || size.x < 0 || size.y < 0 || size.z < 0) return;
+    cameraCenter.copy(minimum).add(maximum).multiplyScalar(.5);
+    fittedHalfSize = Math.max(1, size.length() * .5) * 1.15;
+    resize();
+    applyView('oblique');
+    needsFit = false;
+  }
+
   for (const button of viewButtons) {
     button.addEventListener('click', () => {
-      const { position, up } = views[button.dataset.view];
-      controls.target.set(0, 0, 0);
-      camera.position.set(...position);
-      camera.up.set(...up);
-      camera.zoom = 1;
-      camera.updateProjectionMatrix();
-      controls.setCamera(camera);
-      selectView(button.dataset.view);
-      dirty = true;
+      applyView(button.dataset.view);
     });
   }
   controls.addEventListener('start', () => {
@@ -3685,6 +3766,8 @@ function start() {
 
   function cancelMode() {
     request++;
+    loadController?.abort();
+    loadController = null;
     selection = null;
     setReady(false);
     clearScene();
@@ -3695,6 +3778,9 @@ function start() {
     selection = entry;
     const configuration = activeConfiguration;
     const ticket = ++request;
+    loadController?.abort();
+    loadController = new AbortController();
+    const signal = loadController.signal;
     for (const [index, button] of buttons) {
       button.setAttribute('aria-pressed', String(index === entry.index));
     }
@@ -3705,8 +3791,10 @@ function start() {
     status.textContent = `Loading ${label(entry.index)}…`;
     status.hidden = false;
     try {
-      const sources = await readMode(configuration, entry);
+      const payload = await readMode(configuration, entry, signal);
       if (ticket !== request) return;
+      const sources = payload.frames;
+      if (needsFit) fitConfiguration(payload.bounds);
       frames = sources;
       geometries = new Array(sources.length);
       const initialFrame = selectedFrame % sources.length;
@@ -3719,6 +3807,11 @@ function start() {
         }
         geometries[index] = geometry;
         if (offset === 0) {
+          if (needsFit) {
+            geometry.computeBoundingBox();
+            const box = geometry.boundingBox;
+            fitConfiguration({ min: box.min.toArray(), max: box.max.toArray() });
+          }
           surface.visible = true;
           document.querySelector('#axis').hidden = false;
           document.querySelector('.legend').hidden = false;
@@ -3750,9 +3843,10 @@ function start() {
     elapsed = 0;
     slider.value = '0';
     slider.max = String(configuration.phaseCount - 1);
-    phaseText.value = '0° · 01 / 30';
+    phaseText.value = `0° · 01 / ${configuration.phaseCount}`;
     frameMs = 1000 / configuration.framesPerSecond;
     cycleMs = frameMs * configuration.phaseCount;
+    needsFit = true;
     overview.hidden = true;
     detail.hidden = false;
     configurationName(title, configuration);
@@ -3760,6 +3854,10 @@ function start() {
     window.scrollTo({ top: 0 });
     document.querySelector('#breadcrumb-name').textContent = configuration.name;
     document.title = `${configuration.name} | Hopfion eigenmodes`;
+    document.querySelector('#display-description').textContent =
+      `m_z = 0 isosurface · ${configuration.phaseCount} phases · Display amplification ${configuration.displayAmplitude}×`;
+    document.querySelector('#playback-description').textContent =
+      `Phase playback · ${cycleMs / 1000} s per cycle at 1×`;
     modeList.replaceChildren();
     buttons.clear();
     for (let index = 1; index <= configuration.modeCount; index++) {
@@ -3792,6 +3890,7 @@ function start() {
     frequencyLabel.textContent = '';
     status.textContent = 'Mode visualizations for this configuration are pending.';
     status.hidden = hasModes;
+    fitConfiguration(configuration.bounds);
     resize();
   }
 
