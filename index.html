@@ -8,21 +8,29 @@
   <style>
     :root { font: 16px/1.45 Arial, Helvetica, sans-serif; color: #202020; background: #fff; font-synthesis: none; --line: #d8d8d8; --muted: #666; }
     * { box-sizing: border-box; }
-    body { margin: 0; }
+    body { margin: 0; min-height: 100vh; }
+    body[data-screen="configurations"] { font-family: Inter, system-ui, sans-serif; line-height: 1.5; color: #172c42; background: #f3f5f9; }
+    body[data-screen="configurations"] main { max-width: 1400px; padding: 27px 28px 32px; }
+    body[data-screen="configurations"] .site-header { display: block; border: 0; padding-bottom: 0; margin-bottom: 18px; }
+    body[data-screen="configurations"] h1 { font-family: Inter, system-ui, sans-serif; font-size: clamp(27px,4.5vw,41px); font-weight: 690; line-height: 1.2; letter-spacing: -.045em; }
+    body[data-screen="configurations"] .subtitle { margin: 2px 0 18px; color: #53667c; font-size: 16px; }
+    body[data-screen="configurations"] .document-type { display: none; }
     [hidden] { display: none !important; }
     main { max-width: 1480px; margin: 0 auto; padding: 27px 40px 36px; }
     .site-header { display: flex; justify-content: space-between; align-items: baseline; gap: 24px; border-bottom: 1px solid #252525; padding-bottom: 17px; margin-bottom: 25px; }
     h1 { margin: 0; font: 400 clamp(29px,3.2vw,36px)/1.15 Georgia, 'Times New Roman', serif; letter-spacing: -.025em; }
     .subtitle { margin: 7px 0 0; font-size: 14px; color: var(--muted); }
     .document-type { flex: 0 0 auto; font-size: 14px; color: var(--muted); }
-    #configuration-heading { margin: 30px 0 7px; font-size: 16px; font-weight: 600; }
-    #configuration-list { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); column-gap: 34px; }
-    .configuration-card { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 24px 0 18px; border-bottom: 1px solid var(--line); color: inherit; text-decoration: none; }
-    .configuration-name { font: 400 30px/1.2 Georgia, 'Times New Roman', serif; }
-    .configuration-name sub { font-size: .6em; }
-    .configuration-status { color: var(--muted); font-size: 14px; white-space: nowrap; }
-    .configuration-card:hover { border-color: #555; }
-    .configuration-card:hover .configuration-name { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 6px; }
+    #configuration-heading { margin: 22px 0 20px; font-size: 23px; font-weight: 650; letter-spacing: -.02em; }
+    #configuration-list { display: grid; grid-template-columns: repeat(auto-fill,minmax(220px,1fr)); gap: 13px; }
+    .configuration-card { display: block; padding: 22px; border: 1px solid #d8dfe9; border-radius: 12px; background: #fff; color: inherit; text-decoration: none; transition: border-color .15s, box-shadow .15s; }
+    .configuration-name { display: block; font-size: 26px; font-weight: 650; letter-spacing: -.03em; }
+    .configuration-name sub { font-size: .75em; }
+    .configuration-status { display: block; margin-top: 11px; color: #5a6b80; font-size: 14px; }
+    .configuration-card:hover { border-color: #799fc9; box-shadow: 0 6px 18px #2038580c; }
+    .configuration-card:focus-visible { outline: 2px solid #5794d8; outline-offset: 3px; }
+    .configuration-card.available { border-color: #a8bedb; background: #f7faff; }
+    .configuration-card.available .configuration-status { color: #285a93; }
     a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid #333; outline-offset: 4px; }
     .breadcrumb { margin: 0 0 9px; font-size: 14px; }
     .breadcrumb a { color: var(--muted); text-underline-offset: 3px; }
@@ -76,7 +84,6 @@
     .mode:disabled { opacity: 1; color: #888; }
     .mode:disabled:hover { background: #fff; }
     @media (max-width: 1100px) {
-      #configuration-list { grid-template-columns: repeat(4,minmax(0,1fr)); column-gap: 28px; }
       .layout { grid-template-columns: minmax(0,1fr) 202px; gap: 24px; }
       .figure-toolbar { padding: 0 12px; gap: 12px; }
       .views { gap: 10px; }
@@ -85,17 +92,15 @@
       main { padding: 23px 24px 30px; }
       .layout { grid-template-columns: minmax(0,1fr); gap: 26px; }
       .stage { height: clamp(350px,56vh,650px); }
-      #configuration-list { grid-template-columns: repeat(3,minmax(0,1fr)); column-gap: 24px; }
+      body[data-screen="configurations"] main { padding: 18px 12px 24px; }
     }
     @media (max-width: 520px) {
       main { padding: 19px 16px 28px; }
       .site-header { display: block; padding-bottom: 15px; margin-bottom: 20px; }
       .document-type { display: none; }
       h1 { font-size: 29px; }
-      #configuration-heading { margin-top: 24px; }
-      #configuration-list { grid-template-columns: repeat(2,minmax(0,1fr)); column-gap: 25px; }
-      .configuration-card { padding: 21px 0 15px; }
-      .configuration-name { font-size: 28px; }
+      #configuration-list { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+      .configuration-card { padding: 15px 12px; }
       .configuration-status { font-size: 14px; }
       .figure-toolbar { flex-wrap: wrap; gap: 4px; padding: 9px 10px 0; }
       .stage-title { flex: 1 0 100%; gap: 12px; }
@@ -109,7 +114,7 @@
     }
   </style>
 </head>
-<body>
+<body data-screen="configurations">
 <main>
   <header class="site-header">
     <div>
@@ -119,7 +124,7 @@
     <span class="document-type">Supplementary material</span>
   </header>
   <section id="configuration-screen" aria-labelledby="configuration-heading">
-    <h2 id="configuration-heading">Configurations</h2>
+    <h2 id="configuration-heading">Torus configurations</h2>
     <div id="configuration-list"></div>
   </section>
   <section id="viewer-screen" hidden aria-labelledby="configuration-title">
@@ -3905,6 +3910,7 @@ function start() {
     const legacy = location.hash.match(/^#mode-(\d+)$/);
     const route = location.hash.match(/^#configuration\/([a-z0-9-]+)(?:\/mode\/(\d+))?$/);
     const configuration = configurations.find(item => item.id === (legacy ? 'a1-1' : route?.[1]));
+    document.body.dataset.screen = configuration ? 'viewer' : 'configurations';
     if (!configuration) {
       cancelMode();
       activeConfiguration = null;
